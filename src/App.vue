@@ -4,25 +4,25 @@
             Гео
         </div>
         <CustomSelect
-            :items="countries"
+            :options="countries"
+            option-key="name"
             :value-id="idCountry"
-            value-select="name"
             label="Страна"
             @input="changeCountry($event)"
         />
 
         <CustomSelect
-            :items="computedRegions"
+            :options="computedRegions"
+            option-key="name"
             :value-id="idRegion"
-            value-select="name"
             label="Регион"
             @input="changeRegion($event)"
         />
 
         <CustomSelect
-            :items="computedCities"
+            :options="computedCities"
+            option-key="name"
             :value-id="idCity"
-            value-select="name"
             label="Город"
             @input="changeCity($event)"
         />

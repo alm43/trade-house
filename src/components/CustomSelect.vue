@@ -17,7 +17,7 @@
                 @click.stop="changeSelect(null)"
             >×</span>
             <span
-                v-if="items.length"
+                v-if="options.length"
                 :class="['search__arrow', { 'search__arrow--active': isOpenSelect }]"
             />
         </div>
@@ -28,12 +28,12 @@
                 class="custom-select__wrapper"
             >
                 <div
-                    :class="['custom-select__item', {'custom-select__item--active': item[valueSelect] === findItem}]"
-                    v-for="(item, index) in items"
+                    v-for="(option, index) in options"
+                    :class="['custom-select__item', {'custom-select__item--active': option[optionKey] === findItem}]"
                     :key="index"
-                    @click="changeSelect(item)"
+                    @click="changeSelect(option)"
                 >
-                    {{ item[valueSelect] }}
+                    {{ option[optionKey] }}
                 </div>
             </div>
         </transition>
@@ -44,8 +44,8 @@
 import {ref, computed} from "vue";
 
 interface Props {
-    items: any[],
-    valueSelect: string,
+    options: any[],
+    optionKey: string,
     valueId: number,
     label: string
 }
@@ -58,11 +58,12 @@ const emit = defineEmits<{
 const isOpenSelect = ref(false);
 
 const findItem = computed(() => {
-    if (!props.items.length || !props.valueId) {
-        return '';
+    if (!props.options.length || !props.valueId) {
+        return;
     }
 
-    return props.items.find(item => item.id === props.valueId)[props.valueSelect];
+    const item = props.options.find(item => item.id === props.valueId);
+    return item?.[props.optionKey];
 })
 
 const changeSelect = (item: any) => {
@@ -71,7 +72,7 @@ const changeSelect = (item: any) => {
 }
 
 const selectOpen = () => {
-    if (!props.items.length) {
+    if (!props.options.length) {
         return;
     }
     isOpenSelect.value = true;
@@ -95,6 +96,7 @@ $br: 16px;
 
     .search {
         position: relative;
+        background: white;
         border: 1px solid $color-gray;
         padding: 6px 49px 6px 12px;
         border-radius: $br;
