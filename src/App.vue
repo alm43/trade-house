@@ -33,6 +33,7 @@
 import {computed, ref} from "vue";
 import CustomSelect from "./components/CustomSelect.vue"
 import {countries, regions, cities} from "./data";
+import {ICity, ICountry, IRegion} from "./types/geo";
 
 const idCountry = ref(0)
 const idRegion = ref(0)
@@ -52,7 +53,7 @@ const computedCities = computed(() => {
     })
 })
 
-const changeCountry = (item: any) => {
+const changeCountry = (item: ICountry) => {
     if (idCountry.value === item?.id) {
         return;
     }
@@ -61,7 +62,7 @@ const changeCountry = (item: any) => {
     idCity.value = 0;
 }
 
-const changeRegion = (item: any) => {
+const changeRegion = (item: IRegion) => {
     if (idRegion.value === item?.id) {
         return;
     }
@@ -69,7 +70,7 @@ const changeRegion = (item: any) => {
     idCity.value = 0;
 }
 
-const changeCity = (item: any) => {
+const changeCity = (item: ICity) => {
     if (!idRegion.value) {
         idRegion.value = item.idRegion;
     }
