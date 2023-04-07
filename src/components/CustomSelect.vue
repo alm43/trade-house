@@ -1,5 +1,8 @@
 <template>
-    <div class="custom-select">
+    <div
+        ref="customSelect"
+        class="custom-select"
+    >
         <div
             :class="['search', {'search--active': isOpenSelect}]"
             @click="selectOpen"
@@ -56,6 +59,7 @@ const emit = defineEmits<{
 }>();
 
 const isOpenSelect = ref(false);
+const customSelect = ref<HTMLDivElement | null>(null);
 
 const findItem = computed(() => {
     if (!props.options.length || !props.valueId) {
@@ -72,12 +76,19 @@ const changeSelect = (item: any) => {
 }
 
 const selectOpen = () => {
-    if (!props.options.length) {
+    if (!props.options.length || isOpenSelect.value) {
         return;
     }
+
+    document.addEventListener('click', selectClose);
     isOpenSelect.value = true;
 }
-const selectClose = () => {
+const selectClose = (event?: MouseEvent) => {
+    if (event && customSelect.value?.contains(event.target as Node)) {
+        return;
+    }
+
+    document.removeEventListener('click', selectClose);
     isOpenSelect.value = false;
 }
 </script>
