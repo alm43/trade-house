@@ -6,7 +6,8 @@
         <CustomSelect
             :options="countries"
             option-key="name"
-            :value-id="idCountry"
+            option-uid="id"
+            :option-selected="selectedCountry"
             label="Страна"
             @input="changeCountry($event)"
         />
@@ -14,7 +15,8 @@
         <CustomSelect
             :options="computedRegions"
             option-key="name"
-            :value-id="idRegion"
+            option-uid="id"
+            :option-selected="selectedRegion"
             label="Регион"
             @input="changeRegion($event)"
         />
@@ -22,7 +24,8 @@
         <CustomSelect
             :options="computedCities"
             option-key="name"
-            :value-id="idCity"
+            option-uid="id"
+            :option-selected="selectedCity"
             label="Город"
             @input="changeCity($event)"
         />
@@ -33,48 +36,48 @@
 import {computed, ref} from "vue";
 import CustomSelect from "./components/CustomSelect.vue"
 import {countries, regions, cities} from "./data";
-import {ICity, ICountry, IRegion} from "./types/geo";
+import {ICountry, IRegion ,ICity} from "./types/geo";
 
-const idCountry = ref(0)
-const idRegion = ref(0)
-const idCity = ref(0)
+const selectedCountry = ref<ICountry | null>(null)
+const selectedRegion = ref<IRegion | null>(null)
+const selectedCity = ref<ICity | null>(null)
 
 const computedRegions = computed(() => {
-    return regions.filter((region) => region.idCountry === idCountry.value)
+    return regions.filter((region) => region.idCountry === selectedCountry.value?.id)
 })
 
 const computedCities = computed(() => {
     return cities.filter((city) => {
-        if (idRegion.value) {
-            return city.idRegion === idRegion.value
+        if (selectedRegion.value) {
+            return city.idRegion === selectedRegion.value.id
         }
 
-        return city.idCountry === idCountry.value
+        return city.idCountry === selectedCountry.value?.id
     })
 })
 
-const changeCountry = (item: ICountry) => {
-    if (idCountry.value === item?.id) {
+const changeCountry = (selectOption: ICountry) => {
+    if (selectedCountry.value === selectOption) {
         return;
     }
-    idCountry.value = item?.id || 0;
-    idRegion.value = 0;
-    idCity.value = 0;
+    selectedCountry.value = selectOption || null;
+    selectedRegion.value = null;
+    selectedCity.value = null;
 }
 
-const changeRegion = (item: IRegion) => {
-    if (idRegion.value === item?.id) {
+const changeRegion = (selectOption: IRegion) => {
+    if (selectedRegion.value === selectOption) {
         return;
     }
-    idRegion.value = item?.id || 0;
-    idCity.value = 0;
+    selectedRegion.value = selectOption || null;
+    selectedCity.value = null;
 }
 
-const changeCity = (item: ICity) => {
-    if (!idRegion.value) {
-        idRegion.value = item.idRegion;
+const changeCity = (selectOption: ICity) => {
+    if (!selectedRegion.value) {
+        selectedRegion.value = regions.find((region) => region.id === selectOption.idRegion) || null;
     }
-    idCity.value = item?.id || 0;
+    selectedCity.value = selectOption || null;
 }
 </script>
 

@@ -9,13 +9,13 @@
         >
             <input
                 disabled
-                :value="findItem"
+                :value="selected"
                 type="text"
                 class="search__input"
                 :placeholder="label"
             >
             <span
-                v-if="findItem"
+                v-if="selected"
                 class="search__delete"
                 @click.stop="changeSelect(null)"
             >×</span>
@@ -31,9 +31,9 @@
                 class="custom-select__wrapper"
             >
                 <div
-                    v-for="(option, index) in options"
-                    :class="['custom-select__item', {'custom-select__item--active': option[optionKey] === findItem}]"
-                    :key="index"
+                    v-for="option in options"
+                    :class="['custom-select__item', {'custom-select__item--active': option[optionUid] === selectedUid}]"
+                    :key="option[optionUid]"
                     @click="changeSelect(option)"
                 >
                     {{ option[optionKey] }}
@@ -46,33 +46,40 @@
 <script setup lang="ts">
 import {ref, computed} from "vue";
 
+type option = any;
 interface Props {
-    options: any[],
-    optionKey: string,
-    valueId: number,
+    options: option[],
+    optionKey: keyof option,
+    optionUid: keyof option,
+    optionSelected: option,
     label: string
 }
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-    (event: 'input', item: string): void;
+    (event: 'input', selectOption: any): void;
 }>();
 
 const isOpenSelect = ref(false);
 const customSelect = ref<HTMLDivElement | null>(null);
 
-const findItem = computed(() => {
-    if (!props.options.length || !props.valueId) {
+const selected = computed(() => {
+    if (!props.optionSelected) {
         return;
     }
-
-    const item = props.options.find(item => item.id === props.valueId);
-    return item?.[props.optionKey];
+    return props.optionSelected[props.optionKey];
 })
 
-const changeSelect = (item: any) => {
+const selectedUid = computed(() => {
+    if (!props.optionSelected) {
+        return;
+    }
+    return props.optionSelected[props.optionUid];
+})
+
+const changeSelect = (selectOption: any) => {
     selectClose();
-    emit('input', item);
+    emit('input', selectOption);
 }
 
 const selectOpen = () => {
