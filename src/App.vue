@@ -19,6 +19,7 @@
             :option-selected="selectedRegion"
             label="Регион"
             @input="changeRegion($event)"
+            is-need-search
         />
 
         <CustomSelect
@@ -28,6 +29,7 @@
             :option-selected="selectedCity"
             label="Город"
             @input="changeCity($event)"
+            is-need-search
         />
     </div>
 </template>

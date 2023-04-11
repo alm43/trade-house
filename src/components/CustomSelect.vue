@@ -8,11 +8,12 @@
             @click="selectOpen"
         >
             <input
-                disabled
+                :disabled="!isNeedSearch"
                 :value="selected"
                 type="text"
                 class="search__input"
                 :placeholder="label"
+                @input="inputSearch"
             >
             <span
                 v-if="selected"
@@ -31,7 +32,7 @@
                 class="custom-select__wrapper"
             >
                 <div
-                    v-for="option in options"
+                    v-for="option in filteredOptions"
                     :class="['custom-select__item', {'custom-select__item--active': option[optionUid] === selectedUid}]"
                     :key="option[optionUid]"
                     @click="changeSelect(option)"
@@ -49,19 +50,32 @@ import {ref, computed} from "vue";
 type option = any;
 interface Props {
     options: option[],
+    /** ключ - какое значение выводить в опции и фильтровать. options[optionKey] */
     optionKey: keyof option,
+    /** ключ - указывает UID объекта. options[optionUid] */
     optionUid: keyof option,
+    /** выбранная опция */
     optionSelected: option,
-    label: string
+    label: string,
+    /** обычный поиск по вхождению строки */
+    isNeedSearch?: boolean
+    /** реализация своего поиска, через event: 'inputSearch' */
+    isCustomSearch?: boolean
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(),{
+    isNeedSearch: false,
+    isCustomSearch: false
+})
 
 const emit = defineEmits<{
     (event: 'input', selectOption: any): void;
+    (event: 'inputSearch', filterSearch: string): void;
 }>();
 
 const isOpenSelect = ref(false);
+/** outside click */
 const customSelect = ref<HTMLDivElement | null>(null);
+const filterSearch = ref('');
 
 const selected = computed(() => {
     if (!props.optionSelected) {
@@ -77,6 +91,23 @@ const selectedUid = computed(() => {
     return props.optionSelected[props.optionUid];
 })
 
+const filteredOptions = computed(() => {
+    if (props.isCustomSearch || !filterSearch.value.length) {
+        return props.options;
+    }
+
+    return props.options.filter((option) => {
+        return option[props.optionKey].toLowerCase().includes(filterSearch.value.toLowerCase());
+    })
+})
+
+const inputSearch = (event: Event) => {
+    filterSearch.value = (event.target as HTMLInputElement).value
+    if (props.isCustomSearch) {
+        emit('inputSearch', filterSearch.value);
+    }
+}
+
 const changeSelect = (selectOption: any) => {
     selectClose();
     emit('input', selectOption);
@@ -90,11 +121,14 @@ const selectOpen = () => {
     document.addEventListener('click', selectClose);
     isOpenSelect.value = true;
 }
+
 const selectClose = (event?: MouseEvent) => {
     if (event && customSelect.value?.contains(event.target as Node)) {
         return;
     }
 
+    filterSearch.value = '';
+    emit('inputSearch', filterSearch.value);
     document.removeEventListener('click', selectClose);
     isOpenSelect.value = false;
 }
