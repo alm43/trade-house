@@ -8,7 +8,7 @@
             @click="selectOpen"
         >
             <input
-                :disabled="!isNeedSearch"
+                :disabled="!isNeedSearch || !options.length"
                 :value="selected"
                 type="text"
                 class="search__input"
